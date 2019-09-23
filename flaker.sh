@@ -2,6 +2,7 @@
 
 URL=${1?Error: No url given}
 BRANCH=${2:-main}
+rm -Rf ./tmp
 
 if [[ $URL =~ \.git$ ]]
 then
@@ -11,3 +12,10 @@ else
     URL+=".git"
     echo "changed to: ${URL}"
 fi
+
+git clone $URL -b $BRANCH ./tmp/
+cd ./tmp
+git diff --summary origin/master..origin/${BRANCH} | grep .py
+echo $DIRS
+cd ../
+pwd
