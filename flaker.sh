@@ -2,7 +2,6 @@
 
 URL=${1?Error: No url given}
 BRANCH=${2:-main}
-rm -Rf ./tmp
 
 if [[ $URL =~ \.git$ ]]
 then
@@ -13,9 +12,12 @@ else
     echo "changed to: ${URL}"
 fi
 
-git clone $URL -b $BRANCH ./tmp/
+git clone $URL -q -b $BRANCH ./tmp/
 cd ./tmp
-git diff --summary origin/master..origin/${BRANCH} | grep .py
-echo $DIRS
+DIRS=$(git diff --name-only --summary origin/master..origin/${BRANCH} | grep .py)
+echo "following files included:"
+echo $(echo $DIRS | sed -E "s/\s[a-z0-9\/\_]*\//, /g")
+echo -e '\n\n'
+flake8 $DIRS
 cd ../
-pwd
+rm -Rf ./tmp
